@@ -23,7 +23,7 @@ const setUpTextHover = (
   container: HTMLParagraphElement | HTMLHeadingElement,
   type: "title" | "subtitle"
 ) => {
-  if (!container) return;
+  if (!container) return () => {};
 
   const letters = container.querySelectorAll("span");
   const { min, max, default: base } = FONT_WEIGHTS[type];
@@ -77,8 +77,8 @@ const Welcome = () => {
     const titleCleanUp = setUpTextHover(titleRef.current!, "title");
 
     return () => {
-      subtitleCleanUp?.();
-      titleCleanUp?.();
+      subtitleCleanUp();
+      titleCleanUp();
     };
   }, []);
 
