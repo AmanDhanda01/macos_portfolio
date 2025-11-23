@@ -4,8 +4,10 @@ import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 
 import { dockApps } from "@/constants";
+import useWindowStore from "@/store/window";
 
 const Dock = () => {
+  const { openWindow, closeWindow, windows } = useWindowStore();
   const dockRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
@@ -14,39 +16,39 @@ const Dock = () => {
 
     const icons = dock.querySelectorAll(".dock-icon");
 
-    const animateIcon = (mouseX:number) => {
-        const {left} = dock.getBoundingClientRect();
-        icons.forEach((icon) => {
-          const { left: iconLeft, width: iconWidth } = icon.getBoundingClientRect();
-          const center = iconLeft - left + iconWidth / 2;
-          const distance = Math.abs(mouseX - center);
-          const intensity = Math.exp(-(distance ** 2.5) / 2000);
+    const animateIcon = (mouseX: number) => {
+      const { left } = dock.getBoundingClientRect();
+      icons.forEach((icon) => {
+        const { left: iconLeft, width: iconWidth } =
+          icon.getBoundingClientRect();
+        const center = iconLeft - left + iconWidth / 2;
+        const distance = Math.abs(mouseX - center);
+        const intensity = Math.exp(-(distance ** 2.5) / 2000);
 
-          gsap.to(icon, {
-            scale:1+0.25 * intensity,
-            y: -15 * intensity,
-            duration: 0.2,
-            ease: "power2.out",
-          });
+        gsap.to(icon, {
+          scale: 1 + 0.25 * intensity,
+          y: -15 * intensity,
+          duration: 0.2,
+          ease: "power2.out",
         });
-          
-    }
+      });
+    };
     const handleMouseMove = (event: MouseEvent) => {
-        const left = dock.getBoundingClientRect().left;
-        const mouseX = event.clientX - left;
-        animateIcon(mouseX);
-    }
+      const left = dock.getBoundingClientRect().left;
+      const mouseX = event.clientX - left;
+      animateIcon(mouseX); 
+    };
 
     const handleMouseLeave = () => {
-        icons.forEach((icon) => {
-            gsap.to(icon, {
-                scale:1,
-                y:0,
-                duration:0.3,
-                ease:"power1.out",
-            });
-        })
-    }
+      icons.forEach((icon) => {
+        gsap.to(icon, {
+          scale: 1,
+          y: 0,
+          duration: 0.3,
+          ease: "power1.out",
+        });
+      });
+    };
     dock.addEventListener("mousemove", handleMouseMove);
     dock.addEventListener("mouseleave", handleMouseLeave);
 
@@ -56,7 +58,21 @@ const Dock = () => {
     };
   }, []);
 
-  const toggleApp = (app) => {};
+  const toggleApp = (app: { id: string; canOpen: boolean }) => {
+    if (!app.canOpen) return;
+    const window = windows[app.id];
+    
+    if(!window){
+      console.warn(`No window found for app id: ${app.id}`);
+      return;
+    };
+
+    if (window.isOpen) {
+      closeWindow(app.id);
+    } else {
+      openWindow(app.id);
+    }
+  };
   return (
     <section id="dock">
       <div ref={dockRef} className="dock-container">
@@ -81,11 +97,7 @@ const Dock = () => {
             </button>
           </div>
         ))}
-        <Tooltip
-          id="dock-tooltip"
-          place="top"
-          className="tooltip"
-        />
+        <Tooltip id="dock-tooltip" place="top" className="tooltip" />
       </div>
     </section>
   );
