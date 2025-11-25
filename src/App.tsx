@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import Welcome from "@/components/Welcome";
 import Dock from "@/components/Dock";
 import Terminal from "@/components/windows/Terminal";
+import SafariWindow from "@/components/windows/SafariBrowser";
+import Resume from "@/components/windows/Resume";
 
 
 const App = () => {
@@ -16,6 +18,8 @@ const App = () => {
        <Dock/>
        
        <Terminal/>
+       <SafariWindow/>
+       <Resume/>
     </main>
   )
 }
